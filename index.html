@@ -92,7 +92,7 @@ document.getElementById("btnStart").addEventListener("click", async function() {
         try {
             let response = await fetch(`https://atsunadev.pythonanywhere.com/api?username=${username}`);
             let data = await response.json();
-            
+            console.log("respon api", data)
             if (data.Username) {  // Menggunakan "Username" (huruf besar U)
                 liveList.push(username);
                 liveCount++;
