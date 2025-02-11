@@ -87,9 +87,8 @@ document.getElementById("btnStart").addEventListener("click", async function() {
 
     for (let username of usernames) {
         try {
-            let response = await fetch(`https://atsunadev.pythonanywhere.com/live?username=${username}`);
+            let response = await fetch(`https://atsunadev.pythonanywhere.com/api?username=${username}`);
             let data = await response.json();
-            console.log("respon api", data);
             if (data.status && data.status == "live") {  
                 liveList.push(username);
                 liveCount++;
