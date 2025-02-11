@@ -131,10 +131,28 @@ document.getElementById("btnStart").addEventListener("click", async function() {
     }
 });
 
-function updateUI(live, dead, total) {
+function updateUI(live, dead, total, liveList, deadList) {
     document.getElementById("liveCount").innerText = live;
     document.getElementById("dieCount").innerText = dead;
     document.getElementById("totalCount").innerText = total;
+    document.getElementById("listLive").value = liveList.join("\n");
+    document.getElementById("listDie").value = deadList.join("\n");
+}
+
+// Fungsi untuk menyalin teks ke clipboard
+document.getElementById("btnCopyLive").addEventListener("click", function() {
+    copyToClipboard("listLive");
+});
+
+document.getElementById("btnCopyDie").addEventListener("click", function() {
+    copyToClipboard("listDie");
+});
+
+function copyToClipboard(elementId) {
+    let textarea = document.getElementById(elementId);
+    textarea.select();
+    document.execCommand("copy");
+    alert("Copied to clipboard!");
 }
 
 // Fungsi untuk memperbarui jumlah user
