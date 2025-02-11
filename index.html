@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Live Username Instagram</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/icofont/1.0.1/css/icofont.min.css">
+    <style>
+      /* Membuat teks di tengah pada mode desktop */
+      .header-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      /* Agar user number tetap tampil baik di mobile */
+      .user-number {
+        font-size: 1rem;
+        font-weight: bold;
+      }
+
+      /* Responsif: Jaga margin dan padding tetap seimbang */
+      @media (max-width: 768px) {
+        .header-container {
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <div class="header-container">
+        <h1 class="title-of-site"><i class="icofont-check-circled"></i> Check Live Username Instagram</h1>
+        <div class="user-number">
+          <i class="icofont-users"></i> Number of user: <span id="userCount">Loading...</span>
+        </div>   
+      </div>   
+      <div class="col-12 d-flex justify-content-center">
+        <div class="d-flex">
+          <span class="btn mx-1 px-4 py-3 border rounded bg-primary text-white fw-bold" id="btnStart">
+            <i class="icofont-ui-play"></i> Run
+          </span>
+          <span class="mx-1 px-4 py-3 border rounded bg-success text-white fw-bold">
+            Live: <span id="liveCount">0</span>
+          </span>
+          <span class="mx-1 px-4 py-3 border rounded bg-danger text-white fw-bold">
+            Dead: <span id="dieCount">0</span>
+          </span>
+          <span class="mx-1 px-4 py-3 border rounded bg-warning text-white fw-bold">
+            Checked: <span id="totalCount">0</span> account    
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="mb-3">
+          <label class="form-label fw-bold text-success">Enter a list of UIDs, one per line</label>
+          <textarea class="form-control" id="listId" rows="10" autofocus></textarea>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="form-label fw-bold text-success">List of Live accounts</label>
+                <button class="btn btn-secondary btn-sm" id="btnCopyLive"><b>Copy</b></button>
+              </div>
+              <textarea class="form-control" readonly id="listLive" rows="10"></textarea>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="form-label fw-bold text-danger">List of Dead accounts</label>
+                <button class="btn btn-secondary btn-sm" id="btnCopyDie"><b>Copy</b></button>
+              </div>
+              <textarea class="form-control" readonly id="listDie" rows="10"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <script>
+      document.getElementById("btnStart").addEventListener("click", async function() {
+        let usernames = document.getElementById("listId").value.trim().split("\n").map(u => u.trim()).filter(u => u !== "");
+    
+        if (usernames.length === 0) {
+          alert("Masukkan daftar username Instagram terlebih dahulu!");
+          return;
+        }
+    
+        let liveCount = 0;
+        let dieCount = 0;
+        let totalCount = 0;
+        let liveList = [];
+        let dieList = [];
+    
+        for (let username of usernames) {
+          try {
+            let response = await fetch(`https://atsunadev.pythonanywhere.com/api?username=${username}`);
+            let data = await response.json();
+            if (data.status && data.status == "live") { 
+                liveList.push(username);
+                liveCount++;
+              } else {
+                dieList.push(username);
+                dieCount++;
+              }
+          } catch (error) {
+            dieList.push(username);
+            dieCount++;
+          }
+    
+          totalCount++;
+          updateUI(liveCount, dieCount, totalCount, liveList, dieList);
+        }
+      });
+    
+      function updateUI(live, dead, total, liveList, deadList) {
+        document.getElementById("liveCount").innerText = live;
+        document.getElementById("dieCount").innerText = dead;
+        document.getElementById("totalCount").innerText = total;
+        document.getElementById("listLive").value = liveList.join("\n");
+        document.getElementById("listDie").value = deadList.join("\n");
+      }
+    
+    // Fungsi untuk menyalin teks ke clipboard
+      document.getElementById("btnCopyLive").addEventListener("click", function() {
+        copyToClipboard("listLive");
+      });
+    
+      document.getElementById("btnCopyDie").addEventListener("click", function() {
+        copyToClipboard("listDie");
+      });
+    
+      function copyToClipboard(elementId) {
+        let textarea = document.getElementById(elementId);
+        textarea.select();
+        document.execCommand("copy");
+        alert("Copied to clipboard!");
+      }
+      async function updateUserCount() {
+        try {
+          let response = await fetch("https://atsunadev.pythonanywhere.com/user_count");
+          let data = await response.json();
+          document.getElementById("userCount").innerText = data.user_count;
+        } catch (error) {
+          console.error("Gagal mengambil jumlah pengguna", error);
+        }
+      }
+    
+    // Panggil fungsi saat halaman dimuat
+      updateUserCount();
+    </script>
+  
+  </body>
+</html>
